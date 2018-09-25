@@ -1,0 +1,54 @@
+var players = [];
+var onPlayerStateChange = function(event) {
+    var playerStatus = event.data;
+
+    switch(playerStatus){
+        case 0:
+            showButtons();
+            break;
+        default:
+            break;
+    }
+};
+
+(function(){
+    window.addEventListener('load', function(){
+        loader.engine.on('theme-ready', function() {
+            hideButtons();
+
+            var script = document.createElement('script');
+            script.src = '//www.youtube.com/iframe_api';
+
+            script.addEventListener('load', function(){
+
+                loader.engine.document.flatten().forEach( function( control ) {
+
+                    if ( control.getTypeId() === ElementTypes.CONTROL_TYPE_WIDGET_VIDEO ) {
+                        players.push( control.getRootNode().querySelector('iframe').id );
+                    }
+                });
+
+            });
+            document.body.appendChild( script );
+
+        });
+    });
+})();
+
+function onYouTubeIframeAPIReady() {
+    for ( var i=0, len = players.length; i<len; i++ ) {
+        players[i] = new YT.Player( players[i], {
+            events: {
+                onStateChange: onPlayerStateChange
+            }
+        });
+    }
+}
+
+function showButtons() {
+    jQuery('div[data-role="page"][data-is-current-page="1"] div[data-type="form-action-bar"]').show();
+}
+
+function hideButtons() {
+    jQuery('div[data-type="form-action-bar"]').hide();
+}
